@@ -28,31 +28,31 @@ public class Utility {
 				fileName = "Input_StartOfDay_Positions.txt";
 			ClassLoader classLoader = (new Utility()).getClass().getClassLoader();
 			File file = new File(classLoader.getResource(fileName).getFile());
-			List<Position> empList = new ArrayList<>();
+			List<Position> sodList = new ArrayList<>();
 			FileReader reader = new FileReader(file);
 			CSVReader csvReader =  		new CSVReaderBuilder(reader).withSkipLines(1).build();
 			List<String[]> allData = csvReader.readAll(); 
 			for (String[] row : allData) { 
 				int index=0;
-				Position emp =new Position();
+				Position sodPos =new Position();
 				for (String data : row) { 
 					System.out.print(data + "\t"); 
 					if (index == 0)
-						emp.setInstrument(data);
+						sodPos.setInstrument(data);
 					else if (index == 1)
-						emp.setAccountNum(Integer.parseInt(data));
+						sodPos.setAccountNum(Integer.parseInt(data));
 					else if (index == 2)
-						emp.setAcType(AccountType.valueOf(data));
+						sodPos.setAcType(AccountType.valueOf(data));
 					else if (index == 3)
-						emp.setQuantity(Integer.parseInt(data));
+						sodPos.setQuantity(Integer.parseInt(data));
 					else
 						System.err.println("invalid data::" + data);
 					index++;
 				} 
-				System.out.println(emp	); 
-				empList.add(emp);
+				System.out.println(sodPos	); 
+				sodList.add(sodPos);
 			} 
-			return empList;
+			return sodList;
 
 		} catch (Exception e) {
 			System.err.println("Unable to read SOD input file "+e.getMessage());

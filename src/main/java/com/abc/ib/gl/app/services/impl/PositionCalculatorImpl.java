@@ -12,7 +12,6 @@ import com.abc.ib.gl.model.Position;
 import com.abc.ib.gl.model.Transaction;
 
 public class PositionCalculatorImpl implements PositionCalculator {
-	boolean processed = false;
 	List<Position> sodPositions = null;
 	List<OutputPosition> eodPositions = null;
 	List<Transaction> todaysTransactions = null;
@@ -44,9 +43,7 @@ public class PositionCalculatorImpl implements PositionCalculator {
 	}
 	@Override
 	public List<OutputPosition> getEODPositions() {
-		if(processed)
-			return eodPositions;
-		else return null;
+		return eodPositions;
 	}
 	private void processTransactions() {
 		if(sodPositions== null && todaysTransactions==null) {
@@ -105,11 +102,8 @@ public class PositionCalculatorImpl implements PositionCalculator {
 				lowestInst = pos.getInstrument();
 				lowestTraded = pos;
 			}
-
-
 		}
 		System.out.println("largest "+largestInst + " lowest "+lowestInst);
-		processed = true;
 	}
 
 	@Override
