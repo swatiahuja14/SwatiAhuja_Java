@@ -14,6 +14,9 @@ public class Application {
     public static void main(String[] args) {
     	String inputSODFile = null;
     	String inputTXNFile = null;
+    	if(args.length==1) {
+    		inputSODFile = args[0];
+    	}
     	if(args.length>=2) {
     		inputSODFile = args[0];
     		inputTXNFile = args[1];
