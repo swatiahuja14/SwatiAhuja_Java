@@ -24,7 +24,7 @@ public class OutputPosition {
 	/**
 	 * @return the delta
 	 */
-	public double getDelta() {
+	public int getDelta() {
 		return delta;
 	}
 	public void setQuantity(int quantity) {

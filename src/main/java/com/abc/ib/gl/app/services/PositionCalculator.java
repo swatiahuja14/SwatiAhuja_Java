@@ -1,11 +1,10 @@
 package com.abc.ib.gl.app.services;
 import java.util.List;
 
-import com.abc.ib.gl.model.Position;
-import com.abc.ib.gl.model.Transaction;
+import com.abc.ib.gl.model.OutputPosition;
 public interface PositionCalculator {
-
-	
-	List<Position> getEODPositions();
+	OutputPosition getLargestTradedInstrument();
+	OutputPosition getLowestTradedInstrument();
+	List<OutputPosition> getEODPositions();
 	
 }
