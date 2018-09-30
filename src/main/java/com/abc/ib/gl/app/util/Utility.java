@@ -22,21 +22,23 @@ import com.opencsv.CSVReaderBuilder;
 
 public class Utility {
 	public static List<Position> readSODPositions(String fileName) {
-
+		System.out.println("Utility.readSODPositions() from file "+fileName);
 		try {
-			if(fileName==null)
+			if(fileName==null) {
+				System.out.println("Utility.readSODPositions() fileName null, using default");
 				fileName = "Input_StartOfDay_Positions.txt";
+			}
 			ClassLoader classLoader = (new Utility()).getClass().getClassLoader();
 			File file = new File(classLoader.getResource(fileName).getFile());
 			List<Position> sodList = new ArrayList<>();
 			FileReader reader = new FileReader(file);
 			CSVReader csvReader =  		new CSVReaderBuilder(reader).withSkipLines(1).build();
 			List<String[]> allData = csvReader.readAll(); 
+			System.out.println("Utility.readSODPositions() reading  SOD Positions");
 			for (String[] row : allData) { 
 				int index=0;
 				Position sodPos =new Position();
 				for (String data : row) { 
-					System.out.print(data + "\t"); 
 					if (index == 0)
 						sodPos.setInstrument(data);
 					else if (index == 1)
@@ -49,14 +51,20 @@ public class Utility {
 						System.err.println("invalid data::" + data);
 					index++;
 				} 
-				System.out.println(sodPos	); 
 				sodList.add(sodPos);
+				System.out.println(sodPos);
 			} 
+			System.out.println("Utility.readSODPositions() positions read "+sodList.size());
 			return sodList;
 
-		} catch (Exception e) {
+		} 
+		catch (IOException e) {
+			System.err.println("IO Exception Unable to read SOD input file "+e.getMessage());
+			//e.printStackTrace();
+		}
+		catch (Exception e) {
 			System.err.println("Unable to read SOD input file "+e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return null;
 
@@ -64,45 +72,52 @@ public class Utility {
 
 
 
+	@SuppressWarnings("unchecked")
 	public static List<Transaction> readTransactions(String fileName) {
+		System.out.println("Utility.readTransactions() fileName :"+fileName);
 		JSONParser parser = new JSONParser();
-
 		try {
-			if(fileName==null)
+			if(fileName==null) {
+				System.out.println("Utility.readTransactions() fileName null, using default");
 				fileName = "1537277231233_Input_Transactions.txt";
+			}
 			ClassLoader classLoader = (new Utility()).getClass().getClassLoader();
 			File file = new File(classLoader.getResource(fileName).getFile());
 			Object obj = parser.parse(new FileReader(file));
 			List<Transaction> txns = new ArrayList<Transaction>();
 			JSONArray txnList = (JSONArray) obj;
-
-			System.out.println(txnList);
-
-			Iterator<JSONObject> iterator = txnList.iterator();
+			Iterator<JSONObject> iterator = (Iterator<JSONObject>) txnList.iterator();
 			ObjectMapper objectMapper = new ObjectMapper();
-
+			System.out.println("Utility.readTransactions() reading transactions");
 			while (iterator.hasNext()) {
 				JSONObject jobj = iterator.next();
 				Transaction txn = objectMapper.convertValue(jobj, Transaction.class);
 				txns.add(txn);
 				System.out.println(txn);
 			}
+			System.out.println("Utility.readTransactions() transactions read :"+txns.size());
 			return txns;
 
-		} catch (Exception e) {
+		}
+		catch (IOException e) {
+			System.err.println("IOException to read TXN input file "+e.getMessage());
+			//e.printStackTrace();
+		}
+		catch (Exception e) {
 			System.err.println("Unable to read TXN input file "+e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return null;
 	}
 
 
 	public static void writeEODFile(List<OutputPosition> eodPositions) {
-
+		
 		if(eodPositions==null) {
 			System.err.println("Nothing to write for EOD");
 			return;
 		}
+		System.out.println("Utility.writeEODFile() with "+eodPositions.size() + " Positions");
 		FileWriter fileWriter = null;
 
 		try {

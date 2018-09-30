@@ -15,11 +15,12 @@ public class PositionCalculatorImpl implements PositionCalculator {
 	List<Position> sodPositions = null;
 	List<OutputPosition> eodPositions = null;
 	List<Transaction> todaysTransactions = null;
-	OutputPosition largestTraded = null;
-	OutputPosition lowestTraded = null;
+	String largestTraded = null;
+	String lowestTraded = null;
 	Map<String,Map<AccountType,Integer>> map = null;
 
 	public PositionCalculatorImpl(List<Position> sodPos, List<Transaction> currTxns){
+		System.out.println("PositionCalculatorImpl() initializing...");
 		if(sodPos==null) {
 			System.err.println("Unable to proceed. Cant find SOD positions");
 			return;
@@ -30,7 +31,7 @@ public class PositionCalculatorImpl implements PositionCalculator {
 		eodPositions = new ArrayList<>();
 
 		for(Position pos:sodPositions) {
-			Map actPosMap = map.get(pos.getInstrument());
+			Map<AccountType, Integer> actPosMap = map.get(pos.getInstrument());
 			if(actPosMap==null) {
 				actPosMap = new HashMap<AccountType, Integer>();
 			}
@@ -38,7 +39,6 @@ public class PositionCalculatorImpl implements PositionCalculator {
 			map.put(pos.getInstrument(), actPosMap);
 			eodPositions.add(new OutputPosition(pos, 0));
 		}
-		System.out.println(map);
 		processTransactions();
 	}
 	@Override
@@ -46,21 +46,22 @@ public class PositionCalculatorImpl implements PositionCalculator {
 		return eodPositions;
 	}
 	private void processTransactions() {
+		System.out.println("PositionCalculatorImpl.processTransactions()");
 		if(sodPositions== null && todaysTransactions==null) {
+			System.out.println("PositionCalculatorImpl SOD Positions and todays Transactions are null");
 			return;
 		}
 		if(todaysTransactions!=null) {
-
 			for(Transaction txn: todaysTransactions) {
-				Map actPosMap = map.get(txn.getInstrument());
+				Map<AccountType, Integer> actPosMap = map.get(txn.getInstrument());
 				if(actPosMap==null) {
-					System.err.println("account does not exist in SOD "+txn.getInstrument());
+					System.err.println("Instrument does not exist in SOD Positions "+txn.getInstrument());
 					continue;
 				}
-				Integer ex = (Integer) actPosMap.get(AccountType.E);
-				Integer in = (Integer) actPosMap.get(AccountType.I);
+				Integer ex = actPosMap.get(AccountType.E);
+				Integer in = actPosMap.get(AccountType.I);
 				if(ex == null || in ==null) {
-					System.err.println("Initial Positions do not exist");
+					System.err.println("Account does not exist in SOD Initial Positions");
 				}
 				switch(txn.getTransactionType()) {
 				case B:
@@ -76,42 +77,42 @@ public class PositionCalculatorImpl implements PositionCalculator {
 				}
 				actPosMap.put(AccountType.E,ex);
 				actPosMap.put(AccountType.I,in);
-				System.out.println(txn.getInstrument() + " "+actPosMap);
 			}		
 		}
-		System.out.println(map);
 		int largest = 0;
 		int lowest = 0;
-		String largestInst = null;
-		String lowestInst = null;
 		for(OutputPosition pos:eodPositions) {
 			Integer oldqty = pos.getQuantity();
 			Integer newPQty = map.get(pos.getInstrument()).get(pos.getAcType());
 			Integer delta = newPQty - oldqty;
 			pos.setQuantity(newPQty);
 			pos.setDelta(delta);
-
 			System.out.println(pos);
 			if(delta>largest) {
 				largest = delta;
-				largestInst = pos.getInstrument();
-				largestTraded = pos;
+				largestTraded = pos.getInstrument();
 			}
-			if(delta<=lowest && delta>=0) {
+			if(delta<0) {
+				delta = delta*(-1);
+			}
+			if(lowest ==0 && delta!=0) {
 				lowest = delta;
-				lowestInst = pos.getInstrument();
-				lowestTraded = pos;
+				lowestTraded = pos.getInstrument();
+			}
+			if(delta< lowest) {
+				lowest = delta;
+				lowestTraded = pos.getInstrument();
 			}
 		}
-		System.out.println("largest "+largestInst + " lowest "+lowestInst);
+		System.out.println("PositionCalculatorImpl.processTransactions() Complete");
 	}
 
 	@Override
-	public OutputPosition getLargestTradedInstrument() {
+	public String getLargestTradedInstrument() {
 		return largestTraded;
 	}
 	@Override
-	public OutputPosition getLowestTradedInstrument() {
+	public String getLowestTradedInstrument() {
 		return lowestTraded;
 	}
 }
